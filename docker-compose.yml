@@ -1,0 +1,24 @@
+version: "3"
+services:
+  db:
+    restart: always
+    image: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - southwestjs:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: password
+  client:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+      args:
+        CONFIGURATION: "debug"
+    ports:
+      - "3000:3000"
+volumes:
+  southwestjs:

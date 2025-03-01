@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model post_groups {
+  id               String             @id @db.Uuid
+  name             String
+  posts            posts[]
+  user_post_groups user_post_groups[]
+}
+
+model posts {
+  id          String      @id @db.Uuid
+  content     String      @db.VarChar(10)
+  group_id    String      @db.Uuid
+  user_id     String      @db.Uuid
+  created_at  DateTime    @db.Timestamptz(6)
+  updated_at  DateTime    @db.Timestamptz(6)
+  test        String?     @default("foobar")
+  post_groups post_groups @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       users       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([group_id], map: "idx_posts_group_id")
+  @@index([user_id], map: "idx_posts_user_id")
+}
+
+model user_post_groups {
+  id            String      @id @db.Uuid
+  user_id       String      @db.Uuid
+  post_group_id String      @db.Uuid
+  post_groups   post_groups @relation(fields: [post_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users         users       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([user_id, post_group_id])
+}
+
+model users {
+  id               String             @id @db.Uuid
+  name             String
+  posts            posts[]
+  user_post_groups user_post_groups[]
+}
